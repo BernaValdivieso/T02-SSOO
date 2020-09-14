@@ -10,9 +10,15 @@ int PID;
 char *name;
 int prioridad;
 Estado estado;
+int turnos_cpu;
+int interrupciones;
+int turnaround_time;
+int response_time;
+int waiting_time;
+int finished;
 int t_inicio;
 int deadline;
-*** alguna forma de guardar los CPU burst e I/O burst***;
+int arreglo_burst;
 }Process;
 ```
 El estado es un int, porque podría ser más facil compararlo con ontros estados si lo usamos así como dijo el ayudante.
@@ -21,7 +27,6 @@ Para eso usamos esto:
 ```
 typedef enum estados
 {
-NEW, /** este no estoy seguro todavía, pero algo había dicho el ayudante de que había que manejar los estados antes de que existieran por así decirlo*/
 RUNNING,
 READY,
 WAITING,
