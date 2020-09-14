@@ -43,6 +43,19 @@ typedef struct cola
 ```
 
 
+```
+typedef struct cpu
+{
+Process proceso_running;
+}CPU;
+```
+```
+CPU arreglo_cpu[n];
+*** Tenemos un CPU que es un arreglo de procesos running. Como cada CPU puede correr un proceso a la vez, se tendrá que
+    que el arreglo va a ser de largo uno. Tenemos también el arreglo_cpu, que es un que contiene cada CPU. El largo del 
+    arreglo va a depender del input n. Por ejemplo, si nos piden dos CPUs, tendremos un arreglo de tamaño 2. Ese arreglo
+    va a tener dos CPUs, y cada CPU es un arreglo que contiene a UN proceso en estado running.
+```
 - Pasos a seguir:
 
 1. Leer archivo:
