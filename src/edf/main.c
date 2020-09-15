@@ -42,7 +42,7 @@ typedef struct cola
 
 typedef struct cpu
 {
-    Process proceso_running;
+    Process proceso_running[1];
 }CPU;
 
 
@@ -127,13 +127,13 @@ int main(int argc, char**argv)
         proceso.cantidad_burst = (atoi(token)-1)*2 + 1;
         token = strtok(NULL, " ");
 
-        int i = 0;
+        int j = 0;
         while (token != NULL)
         {
             printf("Burst = %s\n", token);
-            proceso.arreglo_burst[i] = atoi(token);
+            proceso.arreglo_burst[j] = atoi(token);
             token = strtok(NULL, " ");
-            i += 1;
+            j += 1;
         }
 
         cola.arreglo_procesos[i] = proceso;
@@ -143,30 +143,32 @@ int main(int argc, char**argv)
 
     /** Para comprobar si está bien. Un espacio y después printear los procesos guardados*/
 
-    /*
+    
     for (int i = 0; i < 3; ++i)
     {
         printf(" \n");
     }
     for (int i = 0; i < cantidad_procesos; ++i)
     {
-        Process* proceso = &cola->arreglo_procesos[i];
-        printf("Nombre = %s\n", proceso->name);
-        printf("PID = %d\n", proceso->PID);
-        printf("Tiempo inicio = %d\n", proceso->t_inicio);
-        printf("Deadline = %d\n", proceso->deadline);
-        printf("Cantidad burst = %d\n", proceso->cantidad_burst);
+        Process proceso = cola.arreglo_procesos[i];
+        printf("Nombre = %s\n", proceso.name);
+        printf("PID = %d\n", proceso.PID);
+        printf("Tiempo inicio = %d\n", proceso.t_inicio);
+        printf("Deadline = %d\n", proceso.deadline);
+        printf("Cantidad burst = %d\n", proceso.cantidad_burst);
     }
 
-    for (int i = 0; i < cantidad_procesos; ++i)
-    {
-        free(&cola->arreglo_procesos[i]);
-    }
-    */
+    
 
     fclose(file);
 
 
+
+
+    for (int i = 0; i < n_nucleos; ++i)
+    {
+        free(arreglo_cpu[i]);
+    }
 
     return 0;
 
