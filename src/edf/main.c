@@ -81,6 +81,19 @@ int main(int argc, char**argv)
     printf("output : %s\n",out);
     printf("n_nucleos : %d\n", n_nucleos);
     
+
+    CPU* arreglo_cpu[n_nucleos];
+    Queue cola;
+
+    for (int i = 0; i < n_nucleos; ++i)
+    {
+        CPU* cpu = calloc(1, sizeof(CPU));
+        arreglo_cpu[i] = cpu; 
+    }
+
+
+
+
     return 0;
 
 
