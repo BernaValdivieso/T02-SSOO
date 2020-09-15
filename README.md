@@ -61,7 +61,38 @@ CPU arreglo_cpu[n];
 
 1. Recibir inputs:
     - Manejar de alguna manera para tener guardado el nombre del archivo input, el nombre del archivo output y la cantidad de CPUs.
-    
+```
+#include "args/args.h"
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h> // para poder hacer exit
+
+int main(int argc, char**argv)
+{
+    printf("Pusiste %i argumentos \n", argc);
+    int n_arg = argc;
+    char * inp = argv[1];
+    char * out = argv[2];
+    char * n_nucleos;
+    printf("input : %s\n",inp);
+    printf("output : %s\n",out);
+    if (n_arg = 1) 
+    {
+        printf("ERROR\nNo has ingresado argumentos\n");
+        exit();
+    }
+    else if (n_arg > 3) 
+    {
+        n_nucleos = argv[3];
+        printf("n_nucleos : %s\n", n_nucleos);
+    }
+    else 
+    {
+        n_nucleos = "1";
+    }
+}
+```
+
 2. Crear estructuras bases:
     - Creamos la cantidad de CPUs que nos piden y las guardamos en el arreglo_cpu que también creamos. Creamos el arreglo_procesos.
     
