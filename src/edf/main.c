@@ -92,6 +92,23 @@ int main(int argc, char**argv)
     }
 
 
+    FILE *file = fopen(inp, "r");
+    char line[2048];
+    
+    fgets(line, sizeof(line), file);
+    printf("Cantidad procesos = %s\n", line);
+    int procesos = atoi(line);
+
+    for (int i = 0; i < procesos; ++i)
+    {
+        fgets(line, sizeof(line), file);
+        printf("Proceso: %s\n", line);
+    }
+    
+    
+
+    fclose(file);
+
 
 
     return 0;
