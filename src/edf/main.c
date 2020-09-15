@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include "args/args.h"
 
 
@@ -103,6 +104,13 @@ int main(int argc, char**argv)
     {
         fgets(line, sizeof(line), file);
         printf("Proceso: %s\n", line);
+
+        char *token = strtok(line, " ");
+        while (token != NULL)
+        {
+            printf("%s\n", token);
+            token = strtok(NULL, " ");
+        }
     }
     
     
