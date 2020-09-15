@@ -100,7 +100,7 @@ FILE *file fopen(NOMBRE_OUTPUT, "w");
 
 for( i = 0; i < CANTIDAD_PROCESOS; i++){
     Process proceso = arreglo_procesos[i];
-    fprint(file, "%s,%d,%d,%d,%d,%d,%d\n", proceso.name, proceso.turnos_cpu, proceso.interrupciones, proceso.turnaround_time, proceso.response_time, proceso.waiting_time,                  proceso.deadline);
+    fprint(file, "%s,%d,%d,%d,%d,%d,%d\n", proceso.name, proceso.turnos_cpu, proceso.interrupciones, proceso.turnaround_time, proceso.response_time, proceso.waiting_time, proceso.deadline);
 }
 
 fclose(file)
