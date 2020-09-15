@@ -43,28 +43,38 @@ typedef struct cpu
 Process proceso_running;
 }CPU;
 
+
 int main(int argc, char**argv)
 {
-    printf("Pusiste %i argumentos \n", argc);
-    int n_arg = argc;
+    
+    int n_arg = argc - 1;
     char * inp = argv[1];
     char * out = argv[2];
     char * n_nucleos;
-    printf("input : %s\n",inp);
-    printf("output : %s\n",out);
-    if (n_arg == 1) 
+
+    if (n_arg == 0) 
     {
-        printf("ERROR\nNo has ingresado argumentos\n");
+        printf(">>ERROR: No has ingresado argumentos\n");
+        exit(0);
     }
-    else if (n_arg > 3) 
+    else if (n_arg == 1) 
+    {
+        printf(">>ERROR: Falta ingresar archivo output\n");
+        exit(0);
+    }
+    else if (n_arg == 3) 
     {
         n_nucleos = argv[3];
-        printf("n_nucleos : %s\n", n_nucleos);
     }
     else 
     {
         n_nucleos = "1";
     }
+
+    printf("Pusiste %i argumentos \n", argc - 1);
+    printf("input : %s\n",inp);
+    printf("output : %s\n",out);
+    printf("n_nucleos : %s\n", n_nucleos);
     
     return 0;
 
