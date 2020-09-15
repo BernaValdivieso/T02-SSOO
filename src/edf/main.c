@@ -47,10 +47,10 @@ Process proceso_running;
 int main(int argc, char**argv)
 {
     
-    int n_arg = argc - 1;
+    int  n_arg = argc - 1;
     char * inp = argv[1];
     char * out = argv[2];
-    char * n_nucleos;
+    int  n_nucleos;
 
     if (n_arg == 0) 
     {
@@ -64,17 +64,22 @@ int main(int argc, char**argv)
     }
     else if (n_arg == 3) 
     {
-        n_nucleos = argv[3];
+        n_nucleos = atoi(argv[3]);
+        if (n_nucleos == 0)
+        {
+            printf(">>ERROR: Ingresar cantidad válida de núcleos\n");
+            exit(0);
+        }
     }
     else 
     {
-        n_nucleos = "1";
+        n_nucleos = 1;
     }
 
-    printf("Pusiste %i argumentos \n", argc - 1);
+    printf("Pusiste %d argumentos \n", argc - 1);
     printf("input : %s\n",inp);
     printf("output : %s\n",out);
-    printf("n_nucleos : %s\n", n_nucleos);
+    printf("n_nucleos : %d\n", n_nucleos);
     
     return 0;
 
