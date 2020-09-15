@@ -28,6 +28,7 @@ typedef struct procesos
     int finished;
     int t_inicio;
     int deadline;
+    int cantidad_burst;
     int arreglo_burst[255];
     int tiempo_cambio_burst; /**(es la suma del tiempo en que comienza el burst actual + lo que demora -> el instante de tiempo en que termina el burst actual)*/
 }Process;
@@ -41,7 +42,7 @@ typedef struct cola
 
 typedef struct cpu
 {
-Process proceso_running;
+    Process proceso_running;
 }CPU;
 
 
@@ -85,6 +86,7 @@ int main(int argc, char**argv)
 
     CPU* arreglo_cpu[n_nucleos];
     Queue cola;
+    
 
     for (int i = 0; i < n_nucleos; ++i)
     {
@@ -98,34 +100,69 @@ int main(int argc, char**argv)
     
     fgets(line, sizeof(line), file);
     printf("Cantidad procesos = %s\n", line);
-    int procesos = atoi(line);
+    int cantidad_procesos = atoi(line);
 
-    for (int i = 0; i < procesos; ++i)
+    for (int i = 0; i < cantidad_procesos; ++i)
     {
         fgets(line, sizeof(line), file);
         printf("Proceso: %s\n", line);
 
+        Process proceso;
+
         char *token = strtok(line, " ");
         
         printf(">Nombre proceso: %s\n", token);
+        proceso.name = token;
         token = strtok(NULL, " ");
         printf(">PID: %s\n", token);
+        proceso.PID = atoi(token);
         token = strtok(NULL, " ");
         printf(">Tiempo inicio: %s\n", token);
+        proceso.t_inicio = atoi(token);
         token = strtok(NULL, " ");
         printf(">Deadline: %s\n", token);
+        proceso.deadline = atoi(token);
         token = strtok(NULL, " ");
         printf(">Cantidad burst: %d\n", (atoi(token)-1)*2 + 1);
+        proceso.cantidad_burst = (atoi(token)-1)*2 + 1;
         token = strtok(NULL, " ");
 
+        int i = 0;
         while (token != NULL)
         {
             printf("Burst = %s\n", token);
+            proceso.arreglo_burst[i] = atoi(token);
             token = strtok(NULL, " ");
+            i += 1;
         }
+
+        cola.arreglo_procesos[i] = proceso;
     }
     
-    
+
+
+    /** Para comprobar si está bien. Un espacio y después printear los procesos guardados*/
+
+    /*
+    for (int i = 0; i < 3; ++i)
+    {
+        printf(" \n");
+    }
+    for (int i = 0; i < cantidad_procesos; ++i)
+    {
+        Process* proceso = &cola->arreglo_procesos[i];
+        printf("Nombre = %s\n", proceso->name);
+        printf("PID = %d\n", proceso->PID);
+        printf("Tiempo inicio = %d\n", proceso->t_inicio);
+        printf("Deadline = %d\n", proceso->deadline);
+        printf("Cantidad burst = %d\n", proceso->cantidad_burst);
+    }
+
+    for (int i = 0; i < cantidad_procesos; ++i)
+    {
+        free(&cola->arreglo_procesos[i]);
+    }
+    */
 
     fclose(file);
 
