@@ -106,9 +106,21 @@ int main(int argc, char**argv)
         printf("Proceso: %s\n", line);
 
         char *token = strtok(line, " ");
+        
+        printf(">Nombre proceso: %s\n", token);
+        token = strtok(NULL, " ");
+        printf(">PID: %s\n", token);
+        token = strtok(NULL, " ");
+        printf(">Tiempo inicio: %s\n", token);
+        token = strtok(NULL, " ");
+        printf(">Deadline: %s\n", token);
+        token = strtok(NULL, " ");
+        printf(">Cantidad burst: %d\n", (atoi(token)-1)*2 + 1);
+        token = strtok(NULL, " ");
+
         while (token != NULL)
         {
-            printf("%s\n", token);
+            printf("Burst = %s\n", token);
             token = strtok(NULL, " ");
         }
     }
