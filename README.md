@@ -13,6 +13,7 @@ Estado estado;
 int turnos_cpu;
 int interrupciones;
 int turnaround_time;
+int primera_ejecucion; (0 si no ha entrado en la CPU, 1 si ya entró alguna vez)
 int response_time;
 int waiting_time;
 int finished;
@@ -78,15 +79,18 @@ actualizando los distintos tiempos o atributos de cada proceso, etc.
 
 ```-
 for( i = 0; i < 255; i++){
-    - Verificar en CPU si hay un proceso running y si debería cambiar su estado o no.
+    - Verificar en CPU si hay un proceso running y si debería cambiar su estado o no. Si es que terminó, calcularle el turnaround = 
+      (t_actual - t_inicio).
     - Verificar en arreglo_procesos si hay que cambiar algún estado (WAITING a READY). Se ve con tiempo_cambio_burst. Si nos encontramos 
       en ese instante de tiempo, se cambia a WAITING o READY según corresponda y se calcula el nevo tiempo_cambio_burst con la info del 
-      burst siguiente.
+      burst siguiente. 
     - Buscar en el arreglo de procesos, el más prioritario de los procesos según el deadline y que esté en estado ready. 
     - Ver si el proceso escogido ya debería haber empezado (t_actual >= t_inicio de proceso).
     - Comparar deadline del proceso con el que está corriendo en la CPU.
-    - Si es más prioritario, cambiar el estado de RUNNING a WAITING, cambiar el estado del proceso prioritario de WAITING a RUNNING
-      y agregarlo a la CPU.
+    - Si es más prioritario, cambiar el estado de RUNNING a WAITING (aumentar en 1 la cantidad de interrupciones), cambiar el estado del
+      proceso prioritario de WAITING a RUNNING y agregarlo a la CPU (aumentar en 1 la cantidad de turnos_cpu). Si es que el proceso que 
+      entra, no ha estado en la CPU (primera_ejecucion == 0), entonces cambiarle a 1 y calcular su response time como t_actual - t_inicio.
+    - revisar de nuevo el arreglo de procesos y sumarle 1 al waiting_time de todos los que estén en estado READY o WAITING.
     
       
    }
