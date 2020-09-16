@@ -101,7 +101,7 @@ int main(int argc, char**argv)
         arreglo_cpu[i] = cpu; 
     }
 
-
+/**Abrimos el archivo, leemos, vamos creando los procesos y los guardamos */
     FILE *file = fopen(inp, "r");
     char line[2048];
     
@@ -151,11 +151,14 @@ int main(int argc, char**argv)
 
 
 
+/**For grande, donde se maneja todo lo de meter y sacar procesos */
 
 
 
-
-
+    for (int i = 0; i < 255; ++i)
+    {
+        /* code */
+    }
 
 
 
