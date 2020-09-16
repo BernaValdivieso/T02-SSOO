@@ -17,7 +17,7 @@ typedef enum estados
 typedef struct procesos
 {
     int PID;
-    char *name;
+    char name[32];
     Estado estado;
     int turnos_cpu;
     int interrupciones;
@@ -36,7 +36,7 @@ typedef struct procesos
 
 typedef struct cola
 {
-    Process arreglo_procesos[255];
+    Process* arreglo_procesos[255];
 }Queue;
 
 
@@ -107,31 +107,32 @@ int main(int argc, char**argv)
         fgets(line, sizeof(line), file);
         printf("Proceso: %s\n", line);
 
-        Process proceso;
+        Process* proceso = calloc(1, sizeof(Process));
 
         char *token = strtok(line, " ");
         
         printf(">Nombre proceso: %s\n", token);
-        proceso.name = token;
+        strcpy(proceso->name, token);
+        
         token = strtok(NULL, " ");
         printf(">PID: %s\n", token);
-        proceso.PID = atoi(token);
+        proceso->PID = atoi(token);
         token = strtok(NULL, " ");
         printf(">Tiempo inicio: %s\n", token);
-        proceso.t_inicio = atoi(token);
+        proceso->t_inicio = atoi(token);
         token = strtok(NULL, " ");
         printf(">Deadline: %s\n", token);
-        proceso.deadline = atoi(token);
+        proceso->deadline = atoi(token);
         token = strtok(NULL, " ");
         printf(">Cantidad burst: %d\n", (atoi(token)-1)*2 + 1);
-        proceso.cantidad_burst = (atoi(token)-1)*2 + 1;
+        proceso->cantidad_burst = (atoi(token)-1)*2 + 1;
         token = strtok(NULL, " ");
 
         int j = 0;
         while (token != NULL)
         {
             printf("Burst = %s\n", token);
-            proceso.arreglo_burst[j] = atoi(token);
+            proceso->arreglo_burst[j] = atoi(token);
             token = strtok(NULL, " ");
             j += 1;
         }
@@ -150,12 +151,12 @@ int main(int argc, char**argv)
     }
     for (int i = 0; i < cantidad_procesos; ++i)
     {
-        Process proceso = cola.arreglo_procesos[i];
-        printf("Nombre = %s\n", proceso.name);
-        printf("PID = %d\n", proceso.PID);
-        printf("Tiempo inicio = %d\n", proceso.t_inicio);
-        printf("Deadline = %d\n", proceso.deadline);
-        printf("Cantidad burst = %d\n", proceso.cantidad_burst);
+        Process* proceso = cola.arreglo_procesos[i];
+        printf("Nombre = %s\n", proceso->name);
+        printf("PID = %d\n", proceso->PID);
+        printf("Tiempo inicio = %d\n", proceso->t_inicio);
+        printf("Deadline = %d\n", proceso->deadline);
+        printf("Cantidad burst = %d\n", proceso->cantidad_burst);
     }
 
     
@@ -168,6 +169,10 @@ int main(int argc, char**argv)
     for (int i = 0; i < n_nucleos; ++i)
     {
         free(arreglo_cpu[i]);
+    }
+    for (int i = 0; i < cantidad_procesos; ++i)
+    {
+        free(cola.arreglo_procesos[i]);
     }
 
     return 0;
