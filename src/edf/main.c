@@ -150,6 +150,9 @@ int main(int argc, char**argv)
             j += 1;
         }
 
+        proceso->turnos_cpu = 0;
+        proceso->interrupciones = 0;
+        proceso->primera_ejecucion = 0;
         proceso->burst_actual = 0;
         proceso->tipo_burst = 0; //CPU
         proceso->tiempo_cambio_burst = proceso->t_inicio + proceso->arreglo_burst[proceso->burst_actual];
@@ -209,6 +212,90 @@ int main(int argc, char**argv)
             }
         }
 
+        //Buscar en el arreglo de procesos, el más prioritario de los procesos según el deadline y que esté en estado ready
+        //Comparamos los procesos hasta elegir el que esté READY con menor deadline
+        Process* proceso_prioritario;
+        for (int i = 0; i < cantidad_procesos; ++i)
+        {
+            
+            //Buscamos el primero que esté READY, para usarlo como referencia
+            for (int j = 0; j < cantidad_procesos; ++j)
+            {
+                if (cola.arreglo_procesos[j]->estado == READY)
+                {
+                    proceso_prioritario = cola.arreglo_procesos[j];
+                    break;
+                }
+            }
+            //Ahora comparamos el que tenemos de referencia con los otros
+            if (cola.arreglo_procesos[i]->estado == READY)
+            {
+                   if (cola.arreglo_procesos[i]->deadline <= proceso_prioritario->deadline)
+                   {
+                       proceso_prioritario = cola.arreglo_procesos[i]; 
+                   }
+            }
+        }
+        //Ver si el proceso escogido ya debería haber empezado (t_actual >= t_inicio de proceso).
+        if (proceso_prioritario->t_inicio >= tiempo)
+        {
+            //ver si el proceso es más prioritario que el de la CPU o la CPU está vacía
+            for (int cpu = 0; cpu < n_nucleos; ++cpu)
+            {
+                //No hay nada en esa CPU
+                if (arreglo_cpu[cpu]->proceso_running[0] == NULL)
+                {
+                    //cambiar el estado de WAITING a READY y agregarlo a la CPU
+                    proceso_prioritario->estado = READY;
+                    arreglo_cpu[cpu]->proceso_running[0] = proceso_prioritario;
+                    //aumentar en 1 cantidad turno la cantidad de turnos CPU
+                    proceso_prioritario->turnos_cpu += 1;
+                    //si proceso no ha entrado a la CPU, cambiarle primera_ejecucion y calcular su response_time
+                    if (proceso_prioritario->primera_ejecucion == 0)
+                    {
+                        proceso_prioritario->primera_ejecucion =1;
+                        proceso_prioritario->response_time = tiempo - proceso_prioritario->t_inicio;
+                    }
+                    break;
+
+                }
+                //Si hay algo en la CPU
+                if (proceso_prioritario->deadline < arreglo_cpu[cpu]->proceso_running[0]-> deadline)
+                {
+                    //Cambiar el proceso de la CPU de RUNNING a WAITING
+                    arreglo_cpu[cpu]->proceso_running[0]->estado = WAITING;
+                    arreglo_cpu[cpu]->proceso_running[0]->interrupciones += 1;
+
+                    //cambiar el estado de WAITING a READY y agregarlo a la CPU
+                    proceso_prioritario->estado = READY;
+                    arreglo_cpu[cpu]->proceso_running[0] = proceso_prioritario;
+                    //aumentar en 1 cantidad turno la cantidad de turnos CPU
+                    proceso_prioritario->turnos_cpu += 1;
+                    //si proceso no ha entrado a la CPU, cambiarle primera_ejecucion y calcular su response_time
+                    if (proceso_prioritario->primera_ejecucion == 0)
+                    {
+                        proceso_prioritario->primera_ejecucion =1;
+                        proceso_prioritario->response_time = tiempo - proceso_prioritario->t_inicio;
+                    }
+                    break;
+
+                }
+            }
+        }
+
+        //revisar de nuevo el arreglo de procesos y sumarle 1 al waiting_time de todos los que estén en estado READY o WAITING
+        for (int i = 0; i < cantidad_procesos; ++i)
+        {
+            if (cola.arreglo_procesos[i]->estado == READY || cola.arreglo_procesos[i]->estado == WAITING)
+            {
+                cola.arreglo_procesos[i]->waiting_time += 1;
+            }
+            //Si un proceso ya pasó su deadline y no está en estado FINISHED, ponerle finished = 0, porque no terminó bien
+            if (cola.arreglo_procesos[i]->deadline > tiempo && cola.arreglo_procesos[i]->estado != FINISHED)
+            {
+                cola.arreglo_procesos[i]->finished = 0;
+            }
+        }
 
 
 
@@ -219,14 +306,14 @@ int main(int argc, char**argv)
 
 
 
-
+/*
 
 
         for (int i = 0; i < cantidad_procesos; ++i) // Recorre cada proceso
         {
             //ASIGNACION DE CPU's
             for (int cpu = 0; cpu < n_nucleos;++cpu) // Recorre cada CPU (¿crear un array de cpus?)
-            {
+            {-
                 if (arreglo_cpu[cpu]->proceso_running[0] == NULL) //Si la CPU está vacía
                 {
                     
@@ -271,7 +358,7 @@ int main(int argc, char**argv)
 
             
         }
- 
+ */
     }
 
 
