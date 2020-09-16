@@ -164,7 +164,7 @@ int main(int argc, char**argv)
             //ASIGNACION DE CPU's
             for (int cpu = 0; cpu<=n_nucleos;++cpu) // Recorre cada CPU (¿crear un array de cpus?)
             {
-                //IF CPU[i] in idle/not in use 
+                //IF arreglo_cpu[i] in idle/not in use 
                 if (cola.arreglo_procesos[i]->t_inicio == tiempo) // primera ejecucion (cuando todas las CPUs estan libres)
                 {
                     cola.arreglo_procesos[i]->primera_ejecucion = 1; // primera ejecucion
@@ -173,7 +173,7 @@ int main(int argc, char**argv)
                 }
                 if (cola.arreglo_procesos[i]->estado == READY)
                 {
-                    printf("Hay una CPU libre y hay un proceso esperando")
+                    printf("Hay una CPU libre y hay un proceso esperando\n");
                     //CPU.estado EN USO
                     //cola.arreglo_procesos[i]->estado == RUNNING
                     //Numero de veces elegido para usar alguna CPU +1 
@@ -188,6 +188,16 @@ int main(int argc, char**argv)
                 printf("El proceso %s con PID %i ha llegado a su deadline en el tiempo %i\n",cola.arreglo_procesos[i]->name,cola.arreglo_procesos[i]->PID,tiempo);
                 //Se termino el proceso antes de su deadline? 1 -> si, 0-> no
             }
+            //Bursts
+            for (int j = 1; j<= cola.arreglo_procesos[i]->cantidad_burst;++j) // Esto quizas esta mas implementado pero el codigo sirve para asignarle los burst al proceso
+            {
+                if (cola.arreglo_procesos[i]->arreglo_burst[j] == tiempo) 
+                    {
+                        if (j%2==0) printf("PID : %i Burst en el tiempo : %i\n", cola.arreglo_procesos[i]->PID, tiempo); // Si es par es B_N
+                        else printf("Rafaga de cpu\n"); // Si es impar es As_N
+                    }
+            }
+
                 
             
 
