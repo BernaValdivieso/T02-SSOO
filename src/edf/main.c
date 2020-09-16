@@ -161,17 +161,28 @@ int main(int argc, char**argv)
     {
         for (int i = 0; i < cantidad_procesos; ++i)
         {
-            if (cola.arreglo_procesos[i]->t_inicio == tiempo)
+            for (int cpu = 0; cpu<=n_nucleos;++cpu)
             {
-                cola.arreglo_procesos[i]->primera_ejecucion = 1;
-                printf("PRIMERA EJECUCION del proceso %i\n",i);
+                //IF CPU[i] in idle/not in use 
+                if (cola.arreglo_procesos[i]->t_inicio == tiempo) // primera ejecucion (cuando todas las CPUs estan libres)
+                {
+                    cola.arreglo_procesos[i]->primera_ejecucion = 1; // primera ejecucion
+                    cola.arreglo_procesos[i]->estado = RUNNING;
+                    printf("PRIMERA EJECUCION del proceso %i\n",i);
+                }
+                if (cola.arreglo_procesos[i]->estado == WAITING)
+                {
+                    printf("Hay una CPU libre y hay un proceso esperando")
+                }
+
+                if (cola.arreglo_procesos[i]->deadline == tiempo) 
+                {
+                    cola.arreglo_procesos[i]->primera_ejecucion = 1;
+                    printf("El proceso %s con PID %i ha llegado a su deadline en el tiempo %i\n",cola.arreglo_procesos[i]->name,cola.arreglo_procesos[i]->PID,tiempo);
+                }
+                //CPU.estado EN USO
             }
 
-            if (cola.arreglo_procesos[i]->deadline == tiempo)
-            {
-                cola.arreglo_procesos[i]->primera_ejecucion = 1;
-                printf("El proceso %s con PID %i ha llegado a su deadline en el tiempo %i\n",cola.arreglo_procesos[i]->name,cola.arreglo_procesos[i]->PID,tiempo);
-            }
 
             
         }
