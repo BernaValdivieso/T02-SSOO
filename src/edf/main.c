@@ -53,7 +53,6 @@ typedef struct cpu
 
 int main(int argc, char**argv)
 {
-
 /**Aquí se leen los argumentos de consola */    
     int  n_arg = argc - 1;
     char * inp = argv[1];
@@ -121,20 +120,24 @@ int main(int argc, char**argv)
         proceso->estado = 1;
         printf(">Nombre proceso: %s\n", token);
         strcpy(proceso->name, token);
+
         token = strtok(NULL, " ");
         printf(">PID: %s\n", token);
         proceso->PID = atoi(token);
+
         token = strtok(NULL, " ");
         printf(">Tiempo inicio: %s\n", token);
         proceso->t_inicio = atoi(token);
+
         token = strtok(NULL, " ");
         printf(">Deadline: %s\n", token);
         proceso->deadline = atoi(token);
+
         token = strtok(NULL, " ");
         printf(">Cantidad burst: %d\n", (atoi(token)-1)*2 + 1);
         proceso->cantidad_burst = (atoi(token)-1)*2 + 1;
-        token = strtok(NULL, " ");
 
+        token = strtok(NULL, " ");
         int j = 0;
         while (token != NULL)
         {
@@ -150,13 +153,30 @@ int main(int argc, char**argv)
     fclose(file);
 
 
-
+// En este punto estan los structs procesos, falta realizar el orden de ejecucion
 /**For grande, donde se maneja todo lo de meter y sacar procesos */
-
-
-
+// Version penca de lo que hay que hacer, considerando una sola CPU (**me es mas facil pensarlo empezando asi u.u)
+    int tiempo = 0;
     for (int i = 0; i < 255; ++i)
     {
+        for (int i = 0; i < cantidad_procesos; ++i)
+        {
+            if (cola.arreglo_procesos[i]->t_inicio == tiempo)
+            {
+                cola.arreglo_procesos[i]->primera_ejecucion = 1;
+                printf("PRIMERA EJECUCION del proceso %i\n",i);
+            }
+
+            if (cola.arreglo_procesos[i]->deadline == tiempo)
+            {
+                cola.arreglo_procesos[i]->primera_ejecucion = 1;
+                printf("El proceso %s con PID %i ha llegado a su deadline en el tiempo %i\n",cola.arreglo_procesos[i]->name,cola.arreglo_procesos[i]->PID,tiempo);
+            }
+
+            
+        }
+        tiempo = tiempo + 1;
+
         /* code */
     }
 
@@ -166,8 +186,7 @@ int main(int argc, char**argv)
 
 
 
-
-
+//write un csv de nombre out
 
 
 
@@ -188,3 +207,4 @@ int main(int argc, char**argv)
 
 
 }
+
