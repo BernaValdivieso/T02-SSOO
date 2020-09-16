@@ -29,6 +29,8 @@ typedef struct procesos
     int t_inicio;
     int deadline;
     int cantidad_burst;
+    int burst_actual;
+    int tipo_burst; //0 = CPU, 1 = I/O
     int arreglo_burst[255];
     int tiempo_cambio_burst; /**(es la suma del tiempo en que comienza el burst actual + lo que demora -> el instante de tiempo en que termina el burst actual)*/
 }Process;
@@ -42,7 +44,7 @@ typedef struct cola
 
 typedef struct cpu
 {
-    Process proceso_running[1];
+    Process* proceso_running[1];
 }CPU;
 
 
@@ -97,6 +99,7 @@ int main(int argc, char**argv)
     for (int i = 0; i < n_nucleos; ++i)
     {
         CPU* cpu = calloc(1, sizeof(CPU));
+        cpu->proceso_running[0] = NULL;
         arreglo_cpu[i] = cpu; 
     }
 
@@ -147,6 +150,11 @@ int main(int argc, char**argv)
             j += 1;
         }
 
+        proceso->burst_actual = 0;
+        proceso->tipo_burst = 0; //CPU
+        proceso->tiempo_cambio_burst = proceso->t_inicio + proceso->arreglo_burst[proceso->burst_actual];
+        proceso->estado = READY;
+
         cola.arreglo_procesos[i] = proceso;
     }
       
@@ -155,15 +163,57 @@ int main(int argc, char**argv)
 
 // En este punto estan los structs procesos, falta realizar el orden de ejecucion
 /**For grande, donde se maneja todo lo de meter y sacar procesos */
-// Version penca de lo que hay que hacer, considerando una sola CPU (**me es mas facil pensarlo empezando asi u.u)
-    int tiempo = 0;
-    for (int i = 0; i < 255; ++i) //
+    
+    for (int tiempo = 0; tiempo < 255; ++tiempo) //
     {
+
+        //verificar en CPU si hay un proceso RUNNING
+        for (int cpu = 0; cpu < n_nucleos;++cpu)
+        {
+            if (arreglo_cpu[cpu]->proceso_running[0] != NULL) //Si la CPU no está vacía
+            {
+                int deadline_proceso = arreglo_cpu[cpu]->proceso_running[0]->deadline;
+                if (deadline_proceso == tiempo) // si es que estamos en el deadline
+                {
+                    arreglo_cpu[cpu]->proceso_running[0]->estado = FINISHED; //cambiamos estado a FINISHED
+                    // calculamos su turnaround_time
+                    arreglo_cpu[cpu]->proceso_running[0]->turnaround_time = tiempo - arreglo_cpu[cpu]->proceso_running[0]->t_inicio;
+                    arreglo_cpu[cpu]->proceso_running[0]->finished = 1; //Terminó bien, así que finished = 1
+                }
+            }
+        }
+
+
+
+
+        //verificar en arreglo de procesos, si es que hay que cambiar algún estado
+        for (int i = 0; i < cantidad_procesos; ++i)
+        {
+            //si el arreglo está en un instante donde debe cambiar de burst
+            if (tiempo == cola.arreglo_procesos[i]->tiempo_cambio_burst)
+            {
+                cola.arreglo_procesos[i]->burst_actual += 1; //esto nos sive para leer en el arreglo_burst
+                if (cola.arreglo_procesos[i]->tipo_burst == 0)
+                {
+                    cola.arreglo_procesos[i]->estado = WAITING; //si estábamos en burst
+                }
+                cola.arreglo_procesos[i]->tipo_burst = !(cola.arreglo_procesos[i]->tipo_burst); //si el burst actual era CPU(0), lo cambiamos a 1(I/O) o al revés   
+                //actualizamos el tiempo en que debería terminar el próximo burst
+                cola.arreglo_procesos[i]->tiempo_cambio_burst = tiempo + cola.arreglo_procesos[i]->arreglo_burst[cola.arreglo_procesos[i]->burst_actual];
+            }
+        }
+
+
+
         for (int i = 0; i < cantidad_procesos; ++i) // Recorre cada proceso
         {
             //ASIGNACION DE CPU's
-            for (int cpu = 0; cpu<=n_nucleos;++cpu) // Recorre cada CPU (¿crear un array de cpus?)
+            for (int cpu = 0; cpu < n_nucleos;++cpu) // Recorre cada CPU (¿crear un array de cpus?)
             {
+                if (arreglo_cpu[cpu]->proceso_running[0] == NULL) //Si la CPU está vacía
+                {
+                    
+                }
                 //IF arreglo_cpu[i] in idle/not in use 
                 if (cola.arreglo_procesos[i]->t_inicio == tiempo) // primera ejecucion (cuando todas las CPUs estan libres)
                 {
@@ -204,9 +254,7 @@ int main(int argc, char**argv)
 
             
         }
-        tiempo = tiempo + 1;
-
-        /* code */
+ 
     }
 
 
