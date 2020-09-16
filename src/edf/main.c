@@ -191,7 +191,7 @@ int main(int argc, char**argv)
             //Bursts
             for (int j = 1; j<= cola.arreglo_procesos[i]->cantidad_burst;++j) // Esto quizas esta mas implementado pero el codigo sirve para asignarle los burst al proceso
             {
-                if (cola.arreglo_procesos[i]->arreglo_burst[j] == tiempo) 
+                if (cola.arreglo_procesos[i]->arreglo_burst[j] == tiempo) //no deberia ser con tiempo, creo que deberia tener algo como un contador interno a partir del tiempo global
                     {
                         if (j%2==0) printf("PID : %i Burst en el tiempo : %i\n", cola.arreglo_procesos[i]->PID, tiempo); // Si es par es B_N
                         else printf("Rafaga de cpu\n"); // Si es impar es As_N
