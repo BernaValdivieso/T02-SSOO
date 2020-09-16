@@ -157,11 +157,12 @@ int main(int argc, char**argv)
 /**For grande, donde se maneja todo lo de meter y sacar procesos */
 // Version penca de lo que hay que hacer, considerando una sola CPU (**me es mas facil pensarlo empezando asi u.u)
     int tiempo = 0;
-    for (int i = 0; i < 255; ++i)
+    for (int i = 0; i < 255; ++i) //
     {
-        for (int i = 0; i < cantidad_procesos; ++i)
+        for (int i = 0; i < cantidad_procesos; ++i) // Recorre cada proceso
         {
-            for (int cpu = 0; cpu<=n_nucleos;++cpu)
+            //ASIGNACION DE CPU's
+            for (int cpu = 0; cpu<=n_nucleos;++cpu) // Recorre cada CPU (¿crear un array de cpus?)
             {
                 //IF CPU[i] in idle/not in use 
                 if (cola.arreglo_procesos[i]->t_inicio == tiempo) // primera ejecucion (cuando todas las CPUs estan libres)
@@ -170,18 +171,25 @@ int main(int argc, char**argv)
                     cola.arreglo_procesos[i]->estado = RUNNING;
                     printf("PRIMERA EJECUCION del proceso %i\n",i);
                 }
-                if (cola.arreglo_procesos[i]->estado == WAITING)
+                if (cola.arreglo_procesos[i]->estado == READY)
                 {
                     printf("Hay una CPU libre y hay un proceso esperando")
+                    //CPU.estado EN USO
+                    //cola.arreglo_procesos[i]->estado == RUNNING
+                    //Numero de veces elegido para usar alguna CPU +1 
+                    //Waiting time se le agrega el nuevo tiempo
                 }
-
-                if (cola.arreglo_procesos[i]->deadline == tiempo) 
-                {
-                    cola.arreglo_procesos[i]->primera_ejecucion = 1;
-                    printf("El proceso %s con PID %i ha llegado a su deadline en el tiempo %i\n",cola.arreglo_procesos[i]->name,cola.arreglo_procesos[i]->PID,tiempo);
-                }
-                //CPU.estado EN USO
             }
+
+            //VER ESTADO DE CADA PROCESO 
+            if (cola.arreglo_procesos[i]->deadline == tiempo) 
+            {
+                cola.arreglo_procesos[i]->primera_ejecucion = 1;
+                printf("El proceso %s con PID %i ha llegado a su deadline en el tiempo %i\n",cola.arreglo_procesos[i]->name,cola.arreglo_procesos[i]->PID,tiempo);
+                //Se termino el proceso antes de su deadline? 1 -> si, 0-> no
+            }
+                
+            
 
 
             
