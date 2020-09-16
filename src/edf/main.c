@@ -172,7 +172,12 @@ int main(int argc, char**argv)
 
         //verificar en CPU si hay un proceso RUNNING
         for (int cpu = 0; cpu < n_nucleos;++cpu)
-        {
+       {    
+            //si el la CPU está vacía, nos saltamos esta CPU y revisamos la siguiente
+            if (arreglo_cpu[cpu]->proceso_running[0] == NULL)
+            {
+                continue;
+            }
             if (arreglo_cpu[cpu]->proceso_running[0] != NULL) //Si la CPU no está vacía
             {
                 int deadline_proceso = arreglo_cpu[cpu]->proceso_running[0]->deadline;
