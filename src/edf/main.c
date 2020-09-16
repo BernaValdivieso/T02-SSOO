@@ -150,6 +150,7 @@ int main(int argc, char**argv)
             j += 1;
         }
 
+        proceso->waiting_time = 0;
         proceso->turnos_cpu = 0;
         proceso->interrupciones = 0;
         proceso->primera_ejecucion = 0;
@@ -369,11 +370,22 @@ int main(int argc, char**argv)
 
 
 
-
-
-
 //write un csv de nombre out
+    FILE *file_o = fopen(out, "w");
+    
+    for (int i = 0; i < cantidad_procesos; ++i)
+    {
+        int turnos_cpu = cola.arreglo_procesos[i]->turnos_cpu;
+        int interrupciones = cola.arreglo_procesos[i]->interrupciones;
+        int turnaround_time = cola.arreglo_procesos[i]->turnaround_time;
+        int response_time = cola.arreglo_procesos[i]->response_time;
+        int waiting_time = cola.arreglo_procesos[i]->waiting_time;
+        int deadline = cola.arreglo_procesos[i]->deadline;
 
+        fprintf(file_o, "%s,%d,%d,%d,%d,%d,%d\n", cola.arreglo_procesos[i]->name, turnos_cpu, interrupciones, turnaround_time, response_time, waiting_time, deadline);        
+    }
+    
+    fclose(file_o);
 
 
 
