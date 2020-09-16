@@ -46,9 +46,15 @@ typedef struct cpu
 }CPU;
 
 
+
+
+
+
+
 int main(int argc, char**argv)
 {
-    
+
+/**Aquí se leen los argumentos de consola */    
     int  n_arg = argc - 1;
     char * inp = argv[1];
     char * out = argv[2];
@@ -83,11 +89,12 @@ int main(int argc, char**argv)
     printf("output : %s\n",out);
     printf("n_nucleos : %d\n", n_nucleos);
     
-
+/**Creamos nuestro arreglo que contiene a las distintos CPUs y a la cola con TODOS los procesos*/
     CPU* arreglo_cpu[n_nucleos];
     Queue cola;
     
 
+/**Creamos la cantidad de CPUs que nos piden y lo guardamos en el arreglo */
     for (int i = 0; i < n_nucleos; ++i)
     {
         CPU* cpu = calloc(1, sizeof(CPU));
@@ -111,9 +118,9 @@ int main(int argc, char**argv)
 
         char *token = strtok(line, " ");
         
+        proceso->estado = 1;
         printf(">Nombre proceso: %s\n", token);
         strcpy(proceso->name, token);
-        
         token = strtok(NULL, " ");
         printf(">PID: %s\n", token);
         proceso->PID = atoi(token);
@@ -139,33 +146,32 @@ int main(int argc, char**argv)
 
         cola.arreglo_procesos[i] = proceso;
     }
-    
-
-
-    /** Para comprobar si está bien. Un espacio y después printear los procesos guardados*/
-
-    
-    for (int i = 0; i < 3; ++i)
-    {
-        printf(" \n");
-    }
-    for (int i = 0; i < cantidad_procesos; ++i)
-    {
-        Process* proceso = cola.arreglo_procesos[i];
-        printf("Nombre = %s\n", proceso->name);
-        printf("PID = %d\n", proceso->PID);
-        printf("Tiempo inicio = %d\n", proceso->t_inicio);
-        printf("Deadline = %d\n", proceso->deadline);
-        printf("Cantidad burst = %d\n", proceso->cantidad_burst);
-    }
-
-    
-
+      
     fclose(file);
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/** Última parte. Liberar la memoria para no tener leaks*/
     for (int i = 0; i < n_nucleos; ++i)
     {
         free(arreglo_cpu[i]);
