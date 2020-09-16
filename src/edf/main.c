@@ -181,6 +181,15 @@ int main(int argc, char**argv)
                     arreglo_cpu[cpu]->proceso_running[0]->finished = 1; //Terminó bien, así que finished = 1
                 }
             }
+            //si debemos cambiarnos de burst. En este caso de CPU a I/O
+            if (arreglo_cpu[cpu]->proceso_running[0]->tiempo_cambio_burst == tiempo)
+            {
+                arreglo_cpu[cpu]->proceso_running[0]->burst_actual += 1; //para leer en arreglo_burst
+                arreglo_cpu[cpu]->proceso_running[0]->estado = WAITING; //cambiamos a waiting
+                arreglo_cpu[cpu]->proceso_running[0]->tipo_burst = 1;
+                //actualizamos el tiempo en que debería terminar el próximo burst
+                arreglo_cpu[cpu]->proceso_running[0]->tiempo_cambio_burst = tiempo + arreglo_cpu[cpu]->proceso_running[0]->arreglo_burst[arreglo_cpu[cpu]->proceso_running[0]->burst_actual];
+            }
         }
 
 
@@ -193,15 +202,23 @@ int main(int argc, char**argv)
             if (tiempo == cola.arreglo_procesos[i]->tiempo_cambio_burst)
             {
                 cola.arreglo_procesos[i]->burst_actual += 1; //esto nos sive para leer en el arreglo_burst
-                if (cola.arreglo_procesos[i]->tipo_burst == 0)
-                {
-                    cola.arreglo_procesos[i]->estado = WAITING; //si estábamos en burst
-                }
-                cola.arreglo_procesos[i]->tipo_burst = !(cola.arreglo_procesos[i]->tipo_burst); //si el burst actual era CPU(0), lo cambiamos a 1(I/O) o al revés   
+                cola.arreglo_procesos[i]->estado = READY;
+                cola.arreglo_procesos[i]->tipo_burst = 0; //burst estaba esperando (burst I/O) y ahora cambió a READY (burst CPU)  
                 //actualizamos el tiempo en que debería terminar el próximo burst
                 cola.arreglo_procesos[i]->tiempo_cambio_burst = tiempo + cola.arreglo_procesos[i]->arreglo_burst[cola.arreglo_procesos[i]->burst_actual];
             }
         }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
