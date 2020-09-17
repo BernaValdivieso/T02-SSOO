@@ -193,9 +193,8 @@ int main(int argc, char**argv)
                 }
             }
             //si debemos cambiarnos de burst. En este caso de CPU a I/O
-            if (arreglo_cpu[cpu]->proceso_running[0]->tiempo_cambio_burst == tiempo)
+            if (arreglo_cpu[cpu]->proceso_running[0] != NULL && arreglo_cpu[cpu]->proceso_running[0]->tiempo_cambio_burst == tiempo)
             {
-                printf("AAAAA\n");
                 arreglo_cpu[cpu]->proceso_running[0]->burst_actual += 1; //para leer en arreglo_burst
                 arreglo_cpu[cpu]->proceso_running[0]->estado = WAITING; //cambiamos a waiting
                 arreglo_cpu[cpu]->proceso_running[0]->tipo_burst = 1;
@@ -205,7 +204,6 @@ int main(int argc, char**argv)
                 printf("cpu liberada del proceso : %i por burst \n",arreglo_cpu[cpu]->proceso_running[0]->PID);
                 arreglo_cpu[cpu]->proceso_running[0] = NULL; //liberar cpu
             }
-            printf("BBBBBBBBB\n");
         }
 
 
@@ -221,6 +219,7 @@ int main(int argc, char**argv)
                 //actualizamos el tiempo en que debería terminar el próximo burst
                 cola.arreglo_procesos[i]->tiempo_cambio_burst = tiempo + cola.arreglo_procesos[i]->arreglo_burst[cola.arreglo_procesos[i]->burst_actual];
             }
+
             
         }
 
@@ -320,6 +319,11 @@ int main(int argc, char**argv)
             if (cola.arreglo_procesos[i]->deadline > tiempo && cola.arreglo_procesos[i]->estado != FINISHED)
             {
                 cola.arreglo_procesos[i]->finished = 0;
+            }
+            //si estamos en ready, no deberíamos consumir burst
+            if (cola.arreglo_procesos[i]->estado == READY)
+            {
+                cola.arreglo_procesos[i]->tiempo_cambio_burst += 1;
             }
         }
 
