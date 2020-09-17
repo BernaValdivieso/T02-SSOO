@@ -109,11 +109,23 @@ actualizando los distintos tiempos o atributos de cada proceso, etc.
 
 ```-
 for( i = 0; i < 255; i++){
-    - Verificar en CPU si hay un proceso running y si debería cambiar su estado o no. Si es que terminó, calcularle el turnaround = 
-      (t_actual - t_inicio) y ponerle finished = 1. 
+    - Verificar en CPU si hay un proceso running y si debería cambiar su estado o no.
+
+    Si termino el deadline: (RUNNING A FINISHED)
+        -Calcularle el tournarond = t_actual - t_inicio
+        -Anotar que no alcanzó a completarse -> deadline (en output) = 0
+        -Liberar la CPU (en el mismo instante de tiempo debe entrar otro proceso a la CPU [no debe pasar 1 más])
+    
+    Si es el último burst: (RUNNING A FINISHED)
+        -Calcularle el tournaround
+        -Anotar que alcanzó a completarse -> deadline = 1
+        -Liberar la CPU arreglo_cpu[cpu]->proceso_running[0]->NULL
+    
+
     - Verificar en arreglo_procesos si hay que cambiar algún estado (WAITING a READY). Se ve con tiempo_cambio_burst. Si nos encontramos 
       en ese instante de tiempo, se cambia a WAITING o READY según corresponda y se calcula el nevo tiempo_cambio_burst con la info del 
       burst siguiente. 
+
     - Buscar en el arreglo de procesos, el más prioritario de los procesos según el deadline y que esté en estado ready. 
     - Ver si el proceso escogido ya debería haber empezado (t_actual >= t_inicio de proceso).
     - Comparar deadline del proceso con el que está corriendo en la CPU.
