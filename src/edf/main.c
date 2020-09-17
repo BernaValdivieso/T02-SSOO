@@ -33,6 +33,7 @@ typedef struct procesos
     int tipo_burst; //0 = CPU, 1 = I/O
     int arreglo_burst[255];
     int tiempo_cambio_burst; /**(es la suma del tiempo en que comienza el burst actual + lo que demora -> el instante de tiempo en que termina el burst actual)*/
+    int size_arreglo_burst;
 }Process;
 
 
@@ -149,7 +150,7 @@ int main(int argc, char**argv)
             token = strtok(NULL, " ");
             j += 1;
         }
-
+        proceso -> size_arreglo_burst = j; // para saber si se termino de ejecutar
         proceso->waiting_time = 0;
         proceso->turnos_cpu = 0;
         proceso->interrupciones = 0;
@@ -168,9 +169,9 @@ int main(int argc, char**argv)
 // En este punto estan los structs procesos, falta realizar el orden de ejecucion
 /**For grande, donde se maneja todo lo de meter y sacar procesos */
     
-    for (int tiempo = 0; tiempo < 255; ++tiempo) //
+    for (int tiempo = 0; tiempo < 500; ++tiempo) //
     {
-        printf("%i\n",tiempo);
+        //printf("%i\n",tiempo);
         //verificar en CPU si hay un proceso RUNNING
         for (int cpu = 0; cpu < n_nucleos;++cpu)
        {    
@@ -187,7 +188,8 @@ int main(int argc, char**argv)
                     arreglo_cpu[cpu]->proceso_running[0]->estado = FINISHED; //cambiamos estado a FINISHED
                     // calculamos su turnaround_time
                     arreglo_cpu[cpu]->proceso_running[0]->turnaround_time = tiempo - arreglo_cpu[cpu]->proceso_running[0]->t_inicio;
-                    arreglo_cpu[cpu]->proceso_running[0]->finished = 1; //Terminó bien, así que finished = 1
+                    arreglo_cpu[cpu]->proceso_running[0]->finished = 0; //NO Terminó bien, así que finished = 0
+
                     arreglo_cpu[cpu]->proceso_running[0] = NULL;//liberar cpu
                     printf("cpu liberada x deadline\n");
                 }
@@ -211,12 +213,17 @@ int main(int argc, char**argv)
         for (int i = 0; i < cantidad_procesos; ++i)
         {
             //si el arreglo está en un instante donde debe cambiar de burst
-            if (tiempo == cola.arreglo_procesos[i]->tiempo_cambio_burst)
+            if (tiempo == cola.arreglo_procesos[i]->tiempo_cambio_burst ) 
             {
                 cola.arreglo_procesos[i]->burst_actual += 1; //esto nos sive para leer en el arreglo_burst
                 cola.arreglo_procesos[i]->estado = READY;
                 cola.arreglo_procesos[i]->tipo_burst = 0; //burst estaba esperando (burst I/O) y ahora cambió a READY (burst CPU)  
                 //actualizamos el tiempo en que debería terminar el próximo burst
+                if (cola.arreglo_procesos[i]->burst_actual >= cola.arreglo_procesos[i]->size_arreglo_burst && cola.arreglo_procesos[i]->primera_ejecucion == 1) // si completo su ultimo burst
+                {
+                    cola.arreglo_procesos[i]->estado = FINISHED;
+                    cola.arreglo_procesos[i]->finished = 1; //termino la ejecucion correctamente, finished = 1
+                }
                 cola.arreglo_procesos[i]->tiempo_cambio_burst = tiempo + cola.arreglo_procesos[i]->arreglo_burst[cola.arreglo_procesos[i]->burst_actual];
             }
 
@@ -292,7 +299,7 @@ int main(int argc, char**argv)
                         //cambiar el estado de WAITING a RUNNING y agregarlo a la CPU
                         proceso_prioritario->estado = RUNNING;
                         arreglo_cpu[cpu]->proceso_running[0] = proceso_prioritario;
-                        printf("nuevo PID en proceso %i",arreglo_cpu[cpu]->proceso_running[0]->PID);
+                        printf("nuevo PID en proceso %i\n",arreglo_cpu[cpu]->proceso_running[0]->PID);
                         //aumentar en 1 cantidad turno la cantidad de turnos CPU
                         proceso_prioritario->turnos_cpu += 1;
                         //si proceso no ha entrado a la CPU, cambiarle primera_ejecucion y calcular su response_time
@@ -319,6 +326,7 @@ int main(int argc, char**argv)
             if (cola.arreglo_procesos[i]->deadline > tiempo && cola.arreglo_procesos[i]->estado != FINISHED)
             {
                 cola.arreglo_procesos[i]->finished = 0;
+                cola.arreglo_procesos[i]-> estado = FINISHED;
             }
             //si estamos en ready, no deberíamos consumir burst
             if (cola.arreglo_procesos[i]->estado == READY)
@@ -404,7 +412,7 @@ int main(int argc, char**argv)
         int turnaround_time = cola.arreglo_procesos[i]->turnaround_time;
         int response_time = cola.arreglo_procesos[i]->response_time;
         int waiting_time = cola.arreglo_procesos[i]->waiting_time;
-        int deadline = cola.arreglo_procesos[i]->deadline;
+        int deadline = cola.arreglo_procesos[i]->finished;
 
         fprintf(file_o, "%s,%d,%d,%d,%d,%d,%d\n", cola.arreglo_procesos[i]->name, turnos_cpu, interrupciones, turnaround_time, response_time, waiting_time, deadline);        
     }
