@@ -169,52 +169,60 @@ int main(int argc, char**argv)
 // En este punto estan los structs procesos, falta realizar el orden de ejecucion
 /**For grande, donde se maneja todo lo de meter y sacar procesos */
     
-    for (int tiempo = 0; tiempo < 500; ++tiempo) //
+    for (int tiempo = 0; tiempo < 255; ++tiempo) //
     {
-        //printf("%i\n",tiempo);
+        printf("%i\n",tiempo);
         //verificar en CPU si hay un proceso RUNNING
+        printf("Verificando CPU\n");
         for (int cpu = 0; cpu < n_nucleos;++cpu)
        {    
+            printf("CPU: %d\n", cpu);
             //si el la CPU está vacía, nos saltamos esta CPU y revisamos la siguiente
             if (arreglo_cpu[cpu]->proceso_running[0] == NULL)
             {
+                printf("CPU vacía\n");
                 continue;
             }
             if (arreglo_cpu[cpu]->proceso_running[0] != NULL) //Si la CPU no está vacía
             {
+                printf("CPU no vacía\n");
                 int deadline_proceso = arreglo_cpu[cpu]->proceso_running[0]->deadline;
                 if (deadline_proceso == tiempo) // si es que estamos en el deadline
                 {
+                    printf("Proceso dentro de deadline\n");
                     arreglo_cpu[cpu]->proceso_running[0]->estado = FINISHED; //cambiamos estado a FINISHED
                     // calculamos su turnaround_time
                     arreglo_cpu[cpu]->proceso_running[0]->turnaround_time = tiempo - arreglo_cpu[cpu]->proceso_running[0]->t_inicio;
                     arreglo_cpu[cpu]->proceso_running[0]->finished = 0; //NO Terminó bien, así que finished = 0
 
                     arreglo_cpu[cpu]->proceso_running[0] = NULL;//liberar cpu
-                    printf("cpu liberada x deadline\n");
+                    printf("Cpu liberada x deadline\n");
                 }
-            }
+            }   
             //si debemos cambiarnos de burst. En este caso de CPU a I/O
             if (arreglo_cpu[cpu]->proceso_running[0] != NULL && arreglo_cpu[cpu]->proceso_running[0]->tiempo_cambio_burst == tiempo)
             {
+                printf("Proceso dentro CPU cambia de bursts\n");
                 arreglo_cpu[cpu]->proceso_running[0]->burst_actual += 1; //para leer en arreglo_burst
                 arreglo_cpu[cpu]->proceso_running[0]->estado = WAITING; //cambiamos a waiting
                 arreglo_cpu[cpu]->proceso_running[0]->tipo_burst = 1;
                 //actualizamos el tiempo en que debería terminar el próximo burst
                 arreglo_cpu[cpu]->proceso_running[0]->tiempo_cambio_burst = tiempo + arreglo_cpu[cpu]->proceso_running[0]->arreglo_burst[arreglo_cpu[cpu]->proceso_running[0]->burst_actual];
                 
-                printf("cpu liberada del proceso : %i por burst \n",arreglo_cpu[cpu]->proceso_running[0]->PID);
+                printf("Cpu liberada del proceso : %i por burst \n",arreglo_cpu[cpu]->proceso_running[0]->PID);
                 arreglo_cpu[cpu]->proceso_running[0] = NULL; //liberar cpu
             }
         }
 
 
         //verificar en arreglo de procesos, si es que hay que cambiar algún estado
+        printf("Verificar cambio de estado entre procesos\n");
         for (int i = 0; i < cantidad_procesos; ++i)
         {
             //si el arreglo está en un instante donde debe cambiar de burst
             if (tiempo == cola.arreglo_procesos[i]->tiempo_cambio_burst ) 
             {
+                printf("Proceso %d debe cambiar de burst\n", cola.arreglo_procesos[i]->PID);
                 cola.arreglo_procesos[i]->burst_actual += 1; //esto nos sive para leer en el arreglo_burst
                 cola.arreglo_procesos[i]->estado = READY;
                 cola.arreglo_procesos[i]->tipo_burst = 0; //burst estaba esperando (burst I/O) y ahora cambió a READY (burst CPU)  
@@ -233,47 +241,53 @@ int main(int argc, char**argv)
         //Buscar en el arreglo de procesos, el más prioritario de los procesos según el deadline y que esté en estado ready
         //Comparamos los procesos hasta elegir el que esté READY con menor deadline
         Process* proceso_prioritario;
-        for (int i = 0; i < cantidad_procesos; ++i)
-        {
-            //Buscamos el primero que esté READY, para usarlo como referencia
+        printf("Buscando proceso prioritario\n");
+    //Buscamos el primero que esté READY, para usarlo como referencia
             for (int j = 0; j < cantidad_procesos; ++j)
             {
                 if (cola.arreglo_procesos[j]->estado == READY)
                 {
                     proceso_prioritario = cola.arreglo_procesos[j];
+                    printf("Proceso para referencia es %d con deadline %d\n", cola.arreglo_procesos[j]->PID, cola.arreglo_procesos[j]->deadline);
                     break;
                 }
             }
+        for (int i = 0; i < cantidad_procesos; ++i)
+        {
+
             
             //Ahora comparamos el que tenemos de referencia con los otros
             if (cola.arreglo_procesos[i]->estado == READY)
             {
-                   if (cola.arreglo_procesos[i]->deadline <= proceso_prioritario->deadline)
+                   if (cola.arreglo_procesos[i]->deadline < proceso_prioritario->deadline)
                    {
                         proceso_prioritario = cola.arreglo_procesos[i];  
                    }
             }
         }
+        printf("Proceso prioritario es %d y su t_inicio = %d\n", proceso_prioritario->PID, proceso_prioritario->t_inicio);
         //Ver si el proceso escogido ya debería haber empezado (t_actual >= t_inicio de proceso).
         if (proceso_prioritario->t_inicio <= tiempo)
         {
-            printf("PROCESO SELECCIONADO pid: %i ",proceso_prioritario->PID);
-            printf("Buscando CPU... ");
+            printf("PROCESO SELECCIONADO pid: %i \n",proceso_prioritario->PID);
+            printf("Buscando CPU... \n");
             //ver si el proceso es más prioritario que el de la CPU o la CPU está vacía
             for (int cpu = 0; cpu < n_nucleos; ++cpu)
             {   
                 //No hay nada en esa CPU
                 if (arreglo_cpu[cpu]->proceso_running[0] == NULL)
                 {
+                    printf("CPU %d está vacía\n", cpu);
                     //cambiar el estado de READY a RUNNING y agregarlo a la CPU
                     proceso_prioritario->estado = RUNNING;
-                    printf("proceso prioritario en RUNNING, pid: %i\n",proceso_prioritario->PID);
+                    printf("Proceso prioritario en RUNNING, pid: %i\n",proceso_prioritario->PID);
                     arreglo_cpu[cpu]->proceso_running[0] = proceso_prioritario;
                     //aumentar en 1 cantidad turno la cantidad de turnos CPU
                     proceso_prioritario->turnos_cpu += 1;
                     //si proceso no ha entrado a la CPU, cambiarle primera_ejecucion y calcular su response_time
                     if (proceso_prioritario->primera_ejecucion == 0)
                     {
+                        printf("Primera vez que el proceso entra a CPU\n");
                         proceso_prioritario->primera_ejecucion = 1;
                         proceso_prioritario->response_time = tiempo - proceso_prioritario->t_inicio;
                     }
@@ -290,21 +304,24 @@ int main(int argc, char**argv)
                 {
                     if (proceso_prioritario->deadline < arreglo_cpu[cpu]->proceso_running[0]-> deadline)
                     {
+
+                        printf("Proceso es más prioritario que el de CPU\n");
                         //Cambiar el proceso de la CPU de RUNNING a READY
                         arreglo_cpu[cpu]->proceso_running[0]->estado = READY;
                         arreglo_cpu[cpu]->proceso_running[0]->interrupciones += 1;
-                        printf("interrupcion del proceso pid : %i   ",arreglo_cpu[cpu]->proceso_running[0]->PID);
+                        printf("Interrupción del proceso pid : %i   ",arreglo_cpu[cpu]->proceso_running[0]->PID);
                         arreglo_cpu[cpu]->proceso_running[0] = NULL;
 
                         //cambiar el estado de WAITING a RUNNING y agregarlo a la CPU
                         proceso_prioritario->estado = RUNNING;
                         arreglo_cpu[cpu]->proceso_running[0] = proceso_prioritario;
-                        printf("nuevo PID en proceso %i\n",arreglo_cpu[cpu]->proceso_running[0]->PID);
+                        printf("Proceso %i entra a CPU\n",arreglo_cpu[cpu]->proceso_running[0]->PID);
                         //aumentar en 1 cantidad turno la cantidad de turnos CPU
                         proceso_prioritario->turnos_cpu += 1;
                         //si proceso no ha entrado a la CPU, cambiarle primera_ejecucion y calcular su response_time
                         if (proceso_prioritario->primera_ejecucion == 0)
                         {
+                            printf("Primera vez que el proceso entra a CPU\n");
                             proceso_prioritario->primera_ejecucion =1;
                             proceso_prioritario->response_time = tiempo - proceso_prioritario->t_inicio;
                         }
@@ -320,17 +337,24 @@ int main(int argc, char**argv)
         {
             if (cola.arreglo_procesos[i]->estado == READY || cola.arreglo_procesos[i]->estado == WAITING)
             {
-                cola.arreglo_procesos[i]->waiting_time += 1;
+                if (tiempo >= cola.arreglo_procesos[i]->t_inicio)
+                {
+                    printf("Agregando tiempo de espera a proceso %d\n", cola.arreglo_procesos[i]->PID);
+                    cola.arreglo_procesos[i]->waiting_time += 1;    
+                }
+                
             }
             //Si un proceso ya pasó su deadline y no está en estado FINISHED, ponerle finished = 0, porque no terminó bien
-            if (cola.arreglo_procesos[i]->deadline > tiempo && cola.arreglo_procesos[i]->estado != FINISHED)
+            if (cola.arreglo_procesos[i]->deadline < tiempo && cola.arreglo_procesos[i]->estado != FINISHED)
             {
+                printf("El proceso %d pasó su deadline y no está terminado\n", cola.arreglo_procesos[i]->PID);
                 cola.arreglo_procesos[i]->finished = 0;
                 cola.arreglo_procesos[i]-> estado = FINISHED;
             }
             //si estamos en ready, no deberíamos consumir burst
             if (cola.arreglo_procesos[i]->estado == READY)
             {
+                printf("El proceso %d está READY y no debería consumir burst\n", cola.arreglo_procesos[i]->PID);
                 cola.arreglo_procesos[i]->tiempo_cambio_burst += 1;
             }
         }
